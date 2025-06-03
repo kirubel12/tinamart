@@ -103,4 +103,56 @@ class ProductController extends Controller
         }
 
     }
+
+    public function show($id)
+    {
+        try {
+            $product = Product::findOrFail($id);
+            return response()->json([
+                'message' => 'Product retrieved successfully',
+                'data' => $product,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Product not found',
+                'error' => $e->getMessage(),
+            ], 404);
+        }
+    }
+    public function destroy($id)
+    {
+        try {
+            $product = Product::findOrFail($id);
+            $product->delete();
+            return response()->json([
+                'message' => 'Product deleted successfully',
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Failed to delete product',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getProductsByCategory($categoryId)
+    {
+        try {
+            $products = Product::where('category_id', $categoryId)->get();
+
+            if ($products->isEmpty()) {
+                return response()->json(['message' => 'No products found for this category'], 404);
+            }
+
+            return response()->json([
+                'message' => 'Products retrieved successfully',
+                'data' => $products,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Failed to retrieve products',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }
