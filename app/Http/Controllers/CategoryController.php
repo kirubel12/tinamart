@@ -53,4 +53,55 @@ class CategoryController extends Controller
             ], 500);
         }
     }
+
+    public function show($id)
+    {
+        $category = Category::find($id);
+
+        if (!$category) {
+            return response()->json(['message' => 'Category not found'], 404);
+        }
+
+        return response()->json([
+            'data' => $category,
+            'message' => 'Category retrieved successfully',
+            'status' => 'success'
+        ], 200);
+    }
+    public function update(Request $request, $id)
+    {
+        $category = Category::find($id);
+
+        if (!$category) {
+            return response()->json(['message' => 'Category not found'], 404);
+        }
+
+        $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'slug' => 'sometimes|required|string|max:255|unique:categories,slug,' . $id,
+        ]);
+
+        $category->update($request->only('name', 'slug'));
+
+        return response()->json([
+            'data' => $category,
+            'message' => 'Category updated successfully',
+            'status' => 'success'
+        ], 200);
+    }
+    public function destroy($id)
+    {
+        $category = Category::find($id);
+
+        if (!$category) {
+            return response()->json(['message' => 'Category not found'], 404);
+        }
+
+        $category->delete();
+
+        return response()->json([
+            'message' => 'Category deleted successfully',
+            'status' => 'success'
+        ], 200);
+    }
 }
