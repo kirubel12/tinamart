@@ -67,4 +67,40 @@ class ProductController extends Controller
         }
 
     }
+
+    public function update(Request $request, $id)
+    {
+        try {
+            $product = Product::findOrFail($id);
+
+            $validated = $request->validate([
+                'name' => 'sometimes|required|string|max:255',
+                'slug' => 'sometimes|required|string|max:255|unique:products,slug,' . $product->id,
+                'sku' => 'sometimes|required|string|max:255|unique:products,sku,' . $product->id,
+                'stock' => 'sometimes|required|integer|min:0',
+                'description' => 'nullable|string',
+                'price' => 'sometimes|required|numeric|min:0',
+                'category_id' => 'sometimes|required|exists:categories,id',
+                'image_url' => 'nullable|url'
+            ]);
+
+            $product->update($validated);
+
+            return response()->json([
+                'message' => 'Product updated successfully',
+                'data' => $product,
+            ], 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Failed to update product',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+
+    }
 }
